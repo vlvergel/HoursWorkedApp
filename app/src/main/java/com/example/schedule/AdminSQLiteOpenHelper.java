@@ -13,7 +13,7 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase BaseDeDatos) {
-        BaseDeDatos.execSQL("CREATE TABLE teacher (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, last_name TEXT, worked_hours REAL)");
+        BaseDeDatos.execSQL("CREATE TABLE teacher (id INTEGER PRIMARY KEY AUTOINCREMENT, identification TEXT UNIQUE, name TEXT, last_name TEXT, worked_hours REAL)");
     }
 
     @Override

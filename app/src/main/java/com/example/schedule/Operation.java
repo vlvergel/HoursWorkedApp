@@ -18,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class Operation extends AppCompatActivity {
     long id;
+    String identification;
     private TextView message, name_message, last_name_message, hours_message;
     private static final int MINIMUM_HOURS = 8;
     private static final int MAXIMUM_HOURS = 40;
@@ -41,20 +42,42 @@ public class Operation extends AppCompatActivity {
 
 
         id = getIntent().getLongExtra("teacher_id", -1);
+        identification = getIntent().getStringExtra("teacher_identification");
+
         System.out.println(id + "id en operation");
         if (id != -1) {
-            getTeacher();
+            getTeacherById(id);
+        } else if (identification != null && !identification.isEmpty()) {
+            getTeacherByIdentification(identification);
         } else {
-            Toast.makeText(this, "ID del profesor no encontrado", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No se recibió ningún identificador", Toast.LENGTH_SHORT).show();
         }
+
     }
 
-    public void  getTeacher(){
+    private void getTeacherById(long id) {
         AdminSQLiteOpenHelper dbHelper = new AdminSQLiteOpenHelper(this, "ScheduleDB", null, 1);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         Cursor cursor = db.rawQuery("SELECT name, last_name, worked_hours FROM teacher WHERE id = ?", new String[]{String.valueOf(id)});
+        handleCursor(cursor);
 
+        cursor.close();
+        db.close();
+    }
+
+    private void getTeacherByIdentification(String identification) {
+        AdminSQLiteOpenHelper dbHelper = new AdminSQLiteOpenHelper(this, "ScheduleDB", null, 1);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT name, last_name, worked_hours FROM teacher WHERE identification = ?", new String[]{identification});
+        handleCursor(cursor);
+
+        cursor.close();
+        db.close();
+    }
+
+    private void handleCursor(Cursor cursor) {
         if (cursor.moveToFirst()) {
             String name = cursor.getString(0);
             String lastName = cursor.getString(1);
@@ -67,6 +90,7 @@ public class Operation extends AppCompatActivity {
             } else {
                 messageWork = "Ha trabajado horas exactas conforme a la ley";
             }
+
             SpannableString nameBold = new SpannableString("Nombre: " + name);
             nameBold.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, "Nombre: ".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
@@ -81,13 +105,9 @@ public class Operation extends AppCompatActivity {
             hours_message.setText(hoursBold);
             message.setText(messageWork);
 
-
         } else {
             Toast.makeText(this, "Profesor no encontrado", Toast.LENGTH_SHORT).show();
         }
-
-        cursor.close();
-        db.close();
-
     }
+
 }
